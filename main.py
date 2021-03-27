@@ -6,7 +6,12 @@ WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game time baby")
 
 VELOCITY = 5
+BULLET_VEL = 7
 WHITE = (255, 255, 255)
+BLACK = (0,0,0)
+
+BORDER = pygame.Rect(WIDTH / 2 - 5, 0, 10, HEIGHT)
+
 SPACESHIP_WIDTH, SPACESHIP_HEIGHT = 65, 55
 
 FPS = 60
@@ -30,28 +35,29 @@ def is_on_screen(ship):
     return False
 
 def handle_red_movement(keys_pressed, red):
-    if keys_pressed[pygame.K_a]: # LEFT for red ship
+    if keys_pressed[pygame.K_a] and red.x - VELOCITY > 0: # LEFT for red ship
         red.x -= VELOCITY
-    if keys_pressed[pygame.K_d]: # RIGHT
+    if keys_pressed[pygame.K_d] and red.x + VELOCITY + red.width < BORDER.x: # RIGHT
         red.x += VELOCITY
-    if keys_pressed[pygame.K_w]: #UP
+    if keys_pressed[pygame.K_w] and red.y - VELOCITY > 0: #UP
         red.y -= VELOCITY
-    if keys_pressed[pygame.K_s]: #DOWN
+    if keys_pressed[pygame.K_s] and red.y + VELOCITY + red.height < HEIGHT - 15: #DOWN
         red.y += VELOCITY
 
 def handle_yellow_movement(keys_pressed, yellow):
-    if keys_pressed[pygame.K_LEFT]: # LEFT for yellow ship
+    if keys_pressed[pygame.K_LEFT] and yellow.x - VELOCITY > BORDER.x: # LEFT for yellow ship
         yellow.x -= VELOCITY
-    if keys_pressed[pygame.K_RIGHT]: # RIGHT
+    if keys_pressed[pygame.K_RIGHT] and yellow.x + VELOCITY + yellow.width < WIDTH: # RIGHT
         yellow.x += VELOCITY
-    if keys_pressed[pygame.K_UP]: #UP
+    if keys_pressed[pygame.K_UP] and yellow.y - VELOCITY > 0: #UP
         yellow.y -= VELOCITY
-    if keys_pressed[pygame.K_DOWN]: #DOWN
+    if keys_pressed[pygame.K_DOWN] and yellow.y + VELOCITY + yellow.height < HEIGHT - 15: #DOWN
         yellow.y += VELOCITY
 
 
 def draw_window(red, yellow):
     WINDOW.fill(WHITE)
+    pygame.draw.rect(WINDOW, BLACK, BORDER)
     WINDOW.blit(YELLOW_SPACESHIP, (yellow.x, yellow.y)) # order of drawing matters. Spaceship would not be visible if we had done it before color fill
     WINDOW.blit(RED_SPACESHIP, (red.x, red.y))
     pygame.display.update()
@@ -61,6 +67,8 @@ def main():
     red = pygame.Rect(100, 300, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
     yellow = pygame.Rect(850, 300, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 
+    bullets = []
+
 
     clock = pygame.time.Clock()
     run = True
@@ -69,6 +77,12 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LCTRL:
+                
+                if event.key == pygame.K_RCTRL:
+                    
+
         
 
         keys_pressed = pygame.key.get_pressed()
