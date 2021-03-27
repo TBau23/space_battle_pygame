@@ -5,6 +5,7 @@ WIDTH, HEIGHT = 1000, 600
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game time baby")
 
+VELOCITY = 5
 WHITE = (255, 255, 255)
 SPACESHIP_WIDTH, SPACESHIP_HEIGHT = 65, 55
 
@@ -22,6 +23,33 @@ RED_SPACESHIP = pygame.transform.rotate(pygame.transform.scale(
 BACKGROUND = pygame.image.load(os.path.join('Assets', 'above_earth.png'))
 
 
+
+def is_on_screen(ship):
+    if ship.x in range(0, WIDTH) and ship.y in range(0, HEIGHT):
+        return True
+    return False
+
+def handle_red_movement(keys_pressed, red):
+    if keys_pressed[pygame.K_a]: # LEFT for red ship
+        red.x -= VELOCITY
+    if keys_pressed[pygame.K_d]: # RIGHT
+        red.x += VELOCITY
+    if keys_pressed[pygame.K_w]: #UP
+        red.y -= VELOCITY
+    if keys_pressed[pygame.K_s]: #DOWN
+        red.y += VELOCITY
+
+def handle_yellow_movement(keys_pressed, yellow):
+    if keys_pressed[pygame.K_LEFT]: # LEFT for yellow ship
+        yellow.x -= VELOCITY
+    if keys_pressed[pygame.K_RIGHT]: # RIGHT
+        yellow.x += VELOCITY
+    if keys_pressed[pygame.K_UP]: #UP
+        yellow.y -= VELOCITY
+    if keys_pressed[pygame.K_DOWN]: #DOWN
+        yellow.y += VELOCITY
+
+
 def draw_window(red, yellow):
     WINDOW.fill(WHITE)
     WINDOW.blit(YELLOW_SPACESHIP, (yellow.x, yellow.y)) # order of drawing matters. Spaceship would not be visible if we had done it before color fill
@@ -31,7 +59,7 @@ def draw_window(red, yellow):
 
 def main():
     red = pygame.Rect(100, 300, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
-    yellow = pygame.Rect(700, 300, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
+    yellow = pygame.Rect(850, 300, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 
 
     clock = pygame.time.Clock()
@@ -42,7 +70,11 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
         
-        yellow.x += 1
+
+        keys_pressed = pygame.key.get_pressed()
+        handle_red_movement(keys_pressed, red)
+        handle_yellow_movement(keys_pressed, yellow)
+        
         draw_window(red, yellow)
         
 
