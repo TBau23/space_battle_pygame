@@ -1,13 +1,13 @@
 import pygame
 import os
 
-WIDTH, HEIGHT = 1000, 600
+WIDTH, HEIGHT = 900, 500
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game time baby")
 
 VELOCITY = 5
 BULLET_VEL = 7
-MAX_BULLETS = 3
+MAX_BULLETS = 5
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)
 RED = (255, 0, 0)
@@ -31,13 +31,6 @@ RED_SPACESHIP = pygame.transform.rotate(pygame.transform.scale(
 
 BACKGROUND = pygame.image.load(os.path.join('Assets', 'above_earth.png'))
 
-
-
-def is_on_screen(ship):
-    if ship.x in range(0, WIDTH) and ship.y in range(0, HEIGHT):
-        return True
-    return False
-
 def handle_red_movement(keys_pressed, red):
     if keys_pressed[pygame.K_a] and red.x - VELOCITY > 0: # LEFT for red ship
         red.x -= VELOCITY
@@ -49,7 +42,7 @@ def handle_red_movement(keys_pressed, red):
         red.y += VELOCITY
 
 def handle_yellow_movement(keys_pressed, yellow):
-    if keys_pressed[pygame.K_LEFT] and yellow.x - VELOCITY > BORDER.x: # LEFT for yellow ship
+    if keys_pressed[pygame.K_LEFT] and yellow.x - VELOCITY > BORDER.x + BORDER.width: # LEFT for yellow ship
         yellow.x -= VELOCITY
     if keys_pressed[pygame.K_RIGHT] and yellow.x + VELOCITY + yellow.width < WIDTH: # RIGHT
         yellow.x += VELOCITY
@@ -58,16 +51,16 @@ def handle_yellow_movement(keys_pressed, yellow):
     if keys_pressed[pygame.K_DOWN] and yellow.y + VELOCITY + yellow.height < HEIGHT - 15: #DOWN
         yellow.y += VELOCITY
 
-
 def draw_window(red, yellow, red_bullets, yellow_bullets):
     WINDOW.fill(WHITE)
     pygame.draw.rect(WINDOW, BLACK, BORDER)
     WINDOW.blit(YELLOW_SPACESHIP, (yellow.x, yellow.y)) # order of drawing matters. Spaceship would not be visible if we had done it before color fill
     WINDOW.blit(RED_SPACESHIP, (red.x, red.y))
+
     for bullet in red_bullets:
         pygame.draw.rect(WINDOW, RED, bullet)
     for bullet in yellow_bullets:
-        pygame.draw.rect(WINDOW, BLACK, bullet)
+        pygame.draw.rect(WINDOW, YELLOW, bullet)
 
 
     pygame.display.update()
@@ -77,14 +70,19 @@ def handle_bullets(yellow_bullets, red_bullets, yellow, red):
     # vice versa for yellow
     for bullet in red_bullets:
         bullet.x += BULLET_VEL
-        if yellow.colliderect(bullet):
+        if pygame.Rect.colliderect(bullet, yellow):
             pygame.event.post(pygame.event.Event(YELLOW_GOT_HIT))
+            red_bullets.remove(bullet)
+            
+        elif bullet.x > WIDTH:
             red_bullets.remove(bullet)
 
     for bullet in yellow_bullets:
         bullet.x -= BULLET_VEL
         if red.colliderect(bullet): 
             pygame.event.post(pygame.event.Event(RED_GOT_HIT))
+            yellow_bullets.remove(bullet)
+        elif bullet.x < 0:
             yellow_bullets.remove(bullet)
 
 def main():
@@ -101,12 +99,15 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                pygame.quit()
+
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LCTRL and len(red_bullets) < MAX_BULLETS:
-                    bullet = pygame.Rect(red.x + red.width, red.y + red.height // 2 - 2, 10, 5) # display x, display y, rect width, rect height
+                if event.key == pygame.K_r and len(red_bullets) < MAX_BULLETS:
+                    bullet = pygame.Rect(
+                        red.x + red.width, red.y + red.height // 2 - 2, 10, 5) # display x, display y, rect width, rect height
                     red_bullets.append(bullet)
                 
-                if event.key == pygame.K_RSHIFT and len(yellow_bullets) < MAX_BULLETS:
+                if event.key == pygame.K_m and len(yellow_bullets) < MAX_BULLETS:
                     bullet = pygame.Rect(yellow.x, yellow.y + yellow.height // 2 - 2, 10, 5) # display x, display y, rect width, rect height
                     yellow_bullets.append(bullet)
 
@@ -120,7 +121,7 @@ def main():
         draw_window(red, yellow, red_bullets, yellow_bullets)
         
 
-    pygame.quit()
+    
 
 if __name__ == "__main__": #only run main if we directly run this file
     main()
